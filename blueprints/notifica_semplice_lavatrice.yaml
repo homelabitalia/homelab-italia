@@ -1,0 +1,42 @@
+blueprint:
+  name: Lavatrice finita (versione semplice)
+  description: >
+    Notifica quando la potenza della presa resta sotto una soglia per qualche minuto.
+    Versione gratuita di Homelab Italia. La versione completa (fase di avvio, durata del ciclo,
+    promemoria finché non apri lo sportello, timeout) è su https://ko-fi.com/homelabitalia/shop
+  domain: automation
+  author: Homelab Italia
+  input:
+    sensore_potenza:
+      name: Sensore di potenza (W)
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+              device_class: power
+    minuti:
+      name: Minuti sotto 5 W
+      default: 4
+      selector:
+        number: {min: 1, max: 30, unit_of_measurement: min}
+    servizio_notifica:
+      name: Servizio di notifica
+      default: notify.mobile_app_telefono
+      selector:
+        text:
+mode: single
+triggers:
+  - trigger: numeric_state
+    entity_id: !input sensore_potenza
+    below: 5
+    for:
+      minutes: !input minuti
+variables:
+  servizio_notifica: !input servizio_notifica
+conditions:
+  - condition: template
+    value_template: "{{ trigger.from_state.state | float(0) > 5 }}"
+actions:
+  - action: "{{ servizio_notifica }}"
+    data:
+      message: "La lavatrice ha finito 👕"

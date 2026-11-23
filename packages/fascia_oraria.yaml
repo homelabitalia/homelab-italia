@@ -1,0 +1,16 @@
+# Fascia oraria F1/F2/F3 (ARERA) per Home Assistant — gratuito, Homelab Italia
+# Richiede l'integrazione Workday (Italia, giorni lavorativi lun-sab, esclusi domenica e festivi).
+# Versione completa con consumi e costi per fascia + protezione contatore 3 kW:
+# https://ko-fi.com/homelabitalia/shop
+template:
+  - sensor:
+      - name: Fascia oraria
+        unique_id: homelab_italia_fascia_oraria_free
+        icon: mdi:clock-time-four-outline
+        state: >
+          {% set n = now() %}
+          {% if is_state('binary_sensor.workday_sensor', 'off') %}F3
+          {% elif n.hour < 7 or n.hour >= 23 %}F3
+          {% elif n.weekday() == 5 %}F2
+          {% elif 8 <= n.hour < 19 %}F1
+          {% else %}F2{% endif %}
